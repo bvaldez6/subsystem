@@ -1,4 +1,4 @@
-## Setup
+## Development Setup
 ### back end
 - install `uv`
 - `cd backend`
@@ -7,7 +7,7 @@
   - macos / linux: `source .venv/bin/activate`
   - windows: `.venv\Scripts\Activate.ps1` or `.venv\Scripts\activate.bat`
 - run `uv sync` to install project's python packages
-- start the backend: (TODO: add command)
+- start the backend: `fastapi dev main.py`
 
 #### other `uv` tips:
 - to install additional packages: `uv add <package>`
