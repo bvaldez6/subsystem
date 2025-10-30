@@ -76,6 +76,7 @@ def discover_local(docker_client, driver, dry_run=False, source="local"):
     host = os.uname().nodename if hasattr(os, "uname") else os.getenv("HOSTNAME", "unknown")
     last_seen = int(time.time() * 1000)
     log.info("Starting discovery on host=%s (dry_run=%s)", host, dry_run)
+    
     try:
         containers = docker_client.containers.list(all=True)
     except docker_errors.DockerException:
@@ -93,9 +94,7 @@ def discover_local(docker_client, driver, dry_run=False, source="local"):
                 image = c.attrs.get("Config", {}).get("Image") if c.attrs else None
 
             nets = (c.attrs or {}).get("NetworkSettings", {}).get("Networks", {}) or {}
-            ip = None
-            if nets:
-                ip = next(iter(nets.values())).get("IPAddress")
+            ip = next(iter(nets.values())).get("IPAddress") if nets else None
             ports = (c.attrs or {}).get("NetworkSettings", {}).get("Ports")
             ports_json = normalize_ports(ports)
 
@@ -114,12 +113,16 @@ def discover_local(docker_client, driver, dry_run=False, source="local"):
             if dry_run:
                 continue
 
+            # Neo4j 5: use execute_write instead of write_transaction
             with driver.session() as session:
-                session.write_transaction(upsert_container,
-                                          cid, name, image, ip, ports_json, host, last_seen, source)
+                session.execute_write(
+                    upsert_container,
+                    cid, name, image, ip, ports_json, host, last_seen, source
+                )
 
         except Exception:
             log.exception("Failed while processing container %s", getattr(c, "id", "unknown"))
+
 
 def main():
     parser = ArgumentParser()
