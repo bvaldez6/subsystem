@@ -11,7 +11,7 @@ Env vars:
  - DOCKER_HOST (default: unix://var/run/docker.sock)
  - NEO4J_URI (default: bolt://localhost:7687)
  - NEO4J_USER (default: neo4j)
- - NEO4J_PASS (default: pass)
+ - NEO4J_PASS (default: neo4jpass)
  - DISCOVERY_LOG_LEVEL (INFO/DEBUG)
 """
 import os
