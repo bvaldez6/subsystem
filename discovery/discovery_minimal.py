@@ -19,6 +19,7 @@ import sys
 import json
 import time
 import logging
+import platform
 from argparse import ArgumentParser
 from docker import DockerClient, errors as docker_errors
 from neo4j import GraphDatabase, exceptions as neo4j_exceptions
@@ -26,7 +27,11 @@ from neo4j import GraphDatabase, exceptions as neo4j_exceptions
 logging.basicConfig(level=os.getenv("DISCOVERY_LOG_LEVEL", "INFO"))
 log = logging.getLogger("discovery_worker")
 
-DOCKER_BASE = os.getenv("DOCKER_HOST", "unix://var/run/docker.sock")
+if platform.system() == "Windows":
+    # Docker Desktop TCP endpoint (must enable 'Expose daemon on tcp://localhost:2375')
+    DOCKER_BASE = os.getenv("DOCKER_HOST", "tcp://localhost:2375")
+else:
+    DOCKER_BASE = os.getenv("DOCKER_HOST", "unix://var/run/docker.sock")
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASS = os.getenv("NEO4J_PASS", "pass")
